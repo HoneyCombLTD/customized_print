@@ -277,7 +277,7 @@ public class PrintServiceImpl implements PrintService {
                 attributes.put(RESIDENT_SIGNATURE, "data:image/png;base64,"+documentsObject.get("residentSignature"));
             }else{
 
-                throw new TemplateProcessingFailureException("Documents not found");
+                throw new TemplateProcessingFailureException(credentialSubject);
             
             }
             uin = decryptedJson.getString("UIN");
