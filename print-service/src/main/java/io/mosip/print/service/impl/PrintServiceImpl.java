@@ -98,6 +98,11 @@ public class PrintServiceImpl implements PrintService {
      */
     private static final String QRCODE = "QrCode";
 
+    /**
+     * The Constant RESIDENT SIGNATURE.
+     */
+    private static final String RESIDENT_SIGNATURE = "ResidentSignature";
+
     @Autowired
     CryptoUtil cryptoUtil;
     /**
@@ -244,6 +249,7 @@ public class PrintServiceImpl implements PrintService {
         String password = null;
         boolean isPhotoSet = false;
         String individualBio = null;
+        String documents = null;
         Map<String, Object> attributes = new LinkedHashMap<>();
         boolean isTransactionSuccessful = false;
         String template = UIN_CARD_TEMPLATE;
@@ -264,6 +270,15 @@ public class PrintServiceImpl implements PrintService {
                 String individualBiometric = new String(individualBio);
                 isPhotoSet = setApplicantPhoto(individualBiometric, attributes);
                 attributes.put("isPhotoSet", isPhotoSet);
+            }
+            if (decryptedJson.has("documents")) {
+                documents = decryptedJson.getString("documents");
+                JSONObject documentsObject = JsonUtil.objectMapperReadValue(documents, JSONObject.class);
+                attributes.put(RESIDENT_SIGNATURE, "data:image/png;base64,"+documentsObject.get("residentSignature"));
+            }else{
+
+                throw new TemplateProcessingFailureException("Documents not found");
+            
             }
             uin = decryptedJson.getString("UIN");
             if (isPasswordProtected) {
