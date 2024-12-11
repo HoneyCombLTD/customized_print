@@ -271,15 +271,15 @@ public class PrintServiceImpl implements PrintService {
                 isPhotoSet = setApplicantPhoto(individualBiometric, attributes);
                 attributes.put("isPhotoSet", isPhotoSet);
             }
-            if (decryptedJson.has("documents")) {
-                documents = decryptedJson.getString("documents");
-                JSONObject documentsObject = JsonUtil.objectMapperReadValue(documents, JSONObject.class);
-                attributes.put(RESIDENT_SIGNATURE, "data:image/png;base64,"+documentsObject.get("residentSignature"));
-            }else{
+            // if (decryptedJson.has("documents")) {
+            //     documents = decryptedJson.getString("documents");
+            //     JSONObject documentsObject = JsonUtil.objectMapperReadValue(documents, JSONObject.class);
+            //     attributes.put(RESIDENT_SIGNATURE, "data:image/png;base64,"+documentsObject.get("residentSignature"));
+            // }else{
 
-                throw new TemplateProcessingFailureException(credentialSubject+decryptedJson.toString());
+            //     throw new TemplateProcessingFailureException(credentialSubject+decryptedJson.toString());
             
-            }
+            // }
             uin = decryptedJson.getString("UIN");
             if (isPasswordProtected) {
                 password = getPassword(decryptedJson);
