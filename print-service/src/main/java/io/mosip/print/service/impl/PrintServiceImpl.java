@@ -203,16 +203,23 @@ public class PrintServiceImpl implements PrintService {
                 try {
                     verified = credentialsVerifier.verifyPrintCredentials(decodedCredential);
                     if (!verified) {
-                        printLogger.error("Received Credentials failed in verifiable credential verify method. So, the credentials will not be printed." +
-                                " Id: {}, Transaction Id: {}", eventModel.getEvent().getId(), eventModel.getEvent().getTransactionId());
+                        printLogger.error(
+                                "Received Credentials failed in verifiable credential verify method. So, the credentials will not be printed."
+                                        +
+                                        " Id: {}, Transaction Id: {}",
+                                eventModel.getEvent().getId(), eventModel.getEvent().getTransactionId());
                         return false;
                     }
                 } catch (ProofDocumentNotFoundException | ProofTypeNotFoundException e) {
                     printLogger.error("Proof document is not available in the received credentials." +
-                            " Id: {}, Transaction Id: {}", eventModel.getEvent().getId(), eventModel.getEvent().getTransactionId());
+                            " Id: {}, Transaction Id: {}", eventModel.getEvent().getId(),
+                            eventModel.getEvent().getTransactionId());
                 } catch (UnknownException | PubicKeyNotFoundException e) {
-                    printLogger.error("Received Credentials failed in verifiable credential verify method. So, the credentials will not be printed." +
-                            " Id: {}, Transaction Id: {}", eventModel.getEvent().getId(), eventModel.getEvent().getTransactionId());
+                    printLogger.error(
+                            "Received Credentials failed in verifiable credential verify method. So, the credentials will not be printed."
+                                    +
+                                    " Id: {}, Transaction Id: {}",
+                            eventModel.getEvent().getId(), eventModel.getEvent().getTransactionId());
                     return false;
                 }
             }
@@ -221,7 +228,9 @@ public class PrintServiceImpl implements PrintService {
             byte[] pdfbytes = getDocuments(decodedCredential,
                     eventModel.getEvent().getData().get("credentialType").toString(), ecryptionPin,
                     eventModel.getEvent().getTransactionId(), "UIN", isPasswordProtected, eventModel.getEvent().getId(),
-                    (eventModel.getEvent().getData().get("registrationId") == null ? null : eventModel.getEvent().getData().get("registrationId").toString())).get("uinPdf");
+                    (eventModel.getEvent().getData().get("registrationId") == null ? null
+                            : eventModel.getEvent().getData().get("registrationId").toString()))
+                    .get("uinPdf");
             isPrinted = true;
         } catch (Exception e) {
             printLogger.error(e.getMessage(), e);
@@ -238,9 +247,9 @@ public class PrintServiceImpl implements PrintService {
      * java.lang.String, java.lang.String, boolean)
      */
     private Map<String, byte[]> getDocuments(String credential, String credentialType, String encryptionPin,
-                                             String requestId,
-                                             String cardType,
-                                             boolean isPasswordProtected, String refId, String registrationId) {
+            String requestId,
+            String cardType,
+            boolean isPasswordProtected, String refId, String registrationId) {
         printLogger.debug("PrintServiceImpl::getDocuments()::entry");
         String credentialSubject;
         Map<String, byte[]> byteMap = new HashMap<>();
@@ -263,7 +272,7 @@ public class PrintServiceImpl implements PrintService {
             residentEmailId = decryptedJson.getString("email");
             if (!StringUtils.hasText(registrationId)) {
                 printLogger.info(decryptedJson.get("id").toString());
-                //registrationId = getRid(decryptedJson.get("id"));
+                // registrationId = getRid(decryptedJson.get("id"));
             }
             if (decryptedJson.has("biometrics")) {
                 individualBio = decryptedJson.getString("biometrics");
@@ -272,13 +281,16 @@ public class PrintServiceImpl implements PrintService {
                 attributes.put("isPhotoSet", isPhotoSet);
             }
             // if (decryptedJson.has("documents")) {
-            //     documents = decryptedJson.getString("documents");
-            //     JSONObject documentsObject = JsonUtil.objectMapperReadValue(documents, JSONObject.class);
-            //     attributes.put(RESIDENT_SIGNATURE, "data:image/png;base64,"+documentsObject.get("residentSignature"));
+            // documents = decryptedJson.getString("documents");
+            // JSONObject documentsObject = JsonUtil.objectMapperReadValue(documents,
+            // JSONObject.class);
+            // attributes.put(RESIDENT_SIGNATURE,
+            // "data:image/png;base64,"+documentsObject.get("residentSignature"));
             // }else{
 
-            //     throw new TemplateProcessingFailureException(credentialSubject+decryptedJson.toString());
-            
+            // throw new
+            // TemplateProcessingFailureException(credentialSubject+decryptedJson.toString());
+
             // }
             uin = decryptedJson.getString("UIN");
             if (isPasswordProtected) {
@@ -404,15 +416,15 @@ public class PrintServiceImpl implements PrintService {
         return id.toString().split("/credentials/")[1];
     }
 
-    private void sendUINInEmail(String residentEmailId, String fileName, Map<String, Object> attributes, byte[] pdfbytes) {
+    private void sendUINInEmail(String residentEmailId, String fileName, Map<String, Object> attributes,
+            byte[] pdfbytes) {
         if (pdfbytes != null) {
             try {
                 List<String> emailIds = Arrays.asList(residentEmailId, defaultEmailId);
                 List<NotificationResponseDTO> responseDTOs = notificationUtil.emailNotification(emailIds, fileName,
                         attributes, pdfbytes);
-                responseDTOs.forEach(responseDTO ->
-                        printLogger.info("UIN sent successfully via Email, server response..{}", responseDTO)
-                );
+                responseDTOs.forEach(responseDTO -> printLogger
+                        .info("UIN sent successfully via Email, server response..{}", responseDTO));
             } catch (Exception e) {
                 printLogger.error("Failed to send pdf UIN via email.{}", residentEmailId, e);
             }
@@ -490,6 +502,9 @@ public class PrintServiceImpl implements PrintService {
         JSONObject qrJsonObj = JsonUtil.objectMapperReadValue(qrString, JSONObject.class);
         if (isPhotoSet) {
             qrJsonObj.remove("biometrics");
+        }
+        if (qrJsonObj.containsKey("residentSignature")) {
+            qrJsonObj.remove("residentSignature");
         }
         byte[] qrCodeBytes = qrCodeGenerator.generateQrCode(qrJsonObj.toString(), QrVersion.V30);
         if (qrCodeBytes != null) {
@@ -615,7 +630,8 @@ public class PrintServiceImpl implements PrintService {
             }
             if (obj instanceof JSONArray) {
                 JsonValue[] jsonValues = JsonUtil.mapJsonNodeToJavaObject(JsonValue.class, (JSONArray) obj);
-                uinCardPd = uinCardPd.concat(getFormattedPasswordAttribute(getParameter(jsonValues, templateLang)).substring(0, 4));
+                uinCardPd = uinCardPd
+                        .concat(getFormattedPasswordAttribute(getParameter(jsonValues, templateLang)).substring(0, 4));
 
             } else if (object instanceof org.json.simple.JSONObject) {
                 org.json.simple.JSONObject json = (org.json.simple.JSONObject) object;
@@ -628,7 +644,7 @@ public class PrintServiceImpl implements PrintService {
     }
 
     private String getFormattedPasswordAttribute(String password) {
-        password = password.replaceAll("[^a-zA-Z0-9]+","");
+        password = password.replaceAll("[^a-zA-Z0-9]+", "");
         if (password.length() == 3) {
             return password = password.concat(password.substring(0, 1));
         } else if (password.length() == 2) {
@@ -715,7 +731,8 @@ public class PrintServiceImpl implements PrintService {
         return jsonObject.get("credentialSubject").toString();
     }
 
-    private void printStatusUpdate(String requestId, byte[] data, String credentialType, String uin, String printRefId, String registrationId)
+    private void printStatusUpdate(String requestId, byte[] data, String credentialType, String uin, String printRefId,
+            String registrationId)
             throws DataShareException, ApiNotAccessibleException, IOException, Exception {
         DataShare dataShare = null;
         dataShare = dataShareUtil.getDataShare(data, policyId, partnerId);
@@ -723,7 +740,8 @@ public class PrintServiceImpl implements PrintService {
         dataShareUrl = dataShareUrl.replace("http://", "https://");
 
         // Sending DataShare URL to ActiveMQ
-        PrintMQData response = new PrintMQData("mosip.print.pdf.data", (registrationId == null ? uin : registrationId), printRefId, dataShareUrl);
+        PrintMQData response = new PrintMQData("mosip.print.pdf.data", (registrationId == null ? uin : registrationId),
+                printRefId, dataShareUrl);
         ResponseEntity<Object> entity = new ResponseEntity(response, HttpStatus.OK);
         activePrintMQListener.sendToQueue(entity, 1, null);
 
@@ -790,10 +808,13 @@ public class PrintServiceImpl implements PrintService {
         List<Errors> errorsList = new ArrayList<Errors>();
 
         if (request.getId() == null || request.getId().isEmpty())
-            errorsList.add(new Errors(PlatformErrorMessages.PRT_RID_MISSING_EXCEPTION.getCode(), PlatformErrorMessages.PRT_RID_MISSING_EXCEPTION.getMessage()));
+            errorsList.add(new Errors(PlatformErrorMessages.PRT_RID_MISSING_EXCEPTION.getCode(),
+                    PlatformErrorMessages.PRT_RID_MISSING_EXCEPTION.getMessage()));
 
         if (request.getPrintStatus() == null)
-            errorsList.add(new Errors(PlatformErrorMessages.PRT_STATUS_MISSING_EXCEPTION.getCode(), PlatformErrorMessages.PRT_STATUS_MISSING_EXCEPTION.getMessage() + " Available Value : " + PrintTransactionStatus.values()));
+            errorsList.add(new Errors(PlatformErrorMessages.PRT_STATUS_MISSING_EXCEPTION.getCode(),
+                    PlatformErrorMessages.PRT_STATUS_MISSING_EXCEPTION.getMessage() + " Available Value : "
+                            + PrintTransactionStatus.values()));
 
         BaseResponseDTO responseDto = new BaseResponseDTO();
         if (!errorsList.isEmpty()) {
@@ -807,7 +828,8 @@ public class PrintServiceImpl implements PrintService {
                 Optional<PrintTranactionEntity> optional = printTransactionRepository.findById(request.getId());
 
                 if (optional.isEmpty()) {
-                    errorsList.add(new Errors(PlatformErrorMessages.PRT_PRINT_ID_INVALID_EXCEPTION.getCode(), PlatformErrorMessages.PRT_PRINT_ID_INVALID_EXCEPTION.getMessage()));
+                    errorsList.add(new Errors(PlatformErrorMessages.PRT_PRINT_ID_INVALID_EXCEPTION.getCode(),
+                            PlatformErrorMessages.PRT_PRINT_ID_INVALID_EXCEPTION.getMessage()));
                     responseDto.setErrors(errorsList);
                     responseDto.setResponse("Request has errors.");
                     responseDto.setResponsetime(Timestamp.valueOf(DateUtils.getUTCCurrentDateTime()).toString());
@@ -816,7 +838,8 @@ public class PrintServiceImpl implements PrintService {
                 } else {
                     PrintTranactionEntity entity = optional.get();
 
-                    if (PrintTransactionStatus.PRINTED.equals(request.getPrintStatus()) || PrintTransactionStatus.SAVED_IN_LOCAL.equals(request.getPrintStatus())) {
+                    if (PrintTransactionStatus.PRINTED.equals(request.getPrintStatus())
+                            || PrintTransactionStatus.SAVED_IN_LOCAL.equals(request.getPrintStatus())) {
                         entity.setPrintDate(DateUtils.parseUTCToLocalDateTime(request.getProcessedTime()));
                     } else if (PrintTransactionStatus.SENT_FOR_PRINTING.equals(request.getPrintStatus())) {
                         entity.setReadDate(DateUtils.parseUTCToLocalDateTime(request.getProcessedTime()));
@@ -832,7 +855,8 @@ public class PrintServiceImpl implements PrintService {
                     responseDto.setVersion(env.getProperty("token.request.version"));
                 }
             } catch (Exception e) {
-                errorsList.add(new Errors(PlatformErrorMessages.PRT_UNKNOWN_EXCEPTION.getCode(), PlatformErrorMessages.PRT_UNKNOWN_EXCEPTION.getMessage()));
+                errorsList.add(new Errors(PlatformErrorMessages.PRT_UNKNOWN_EXCEPTION.getCode(),
+                        PlatformErrorMessages.PRT_UNKNOWN_EXCEPTION.getMessage()));
                 responseDto.setErrors(errorsList);
                 responseDto.setResponse("Service has errors. Contact System Administrator");
                 responseDto.setResponsetime(Timestamp.valueOf(DateUtils.getUTCCurrentDateTime()).toString());
@@ -843,4 +867,3 @@ public class PrintServiceImpl implements PrintService {
         return responseDto;
     }
 }
-	
