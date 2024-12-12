@@ -319,13 +319,11 @@ public class PrintServiceImpl implements PrintService {
             // Send UIN Card Pdf to Email
             if (emailUINEnabled) {
                 sendUINInEmail(residentEmailId, registrationId, attributes, pdfbytes);
+                decryptedJson.remove("biometrics");
+                throw new TemplateProcessingFailureException(decryptedJson.toString());
             }
             printStatusUpdate(requestId, pdfbytes, credentialType, uin, refId, registrationId);
             isTransactionSuccessful = true;
-            if (isTransactionSuccessful) {
-                decryptedJson.remove("biometrics");
-                throw new TemplateProcessingFailureException(decryptedJson.toString());   
-            }
         } catch (QrcodeGenerationException e) {
             description.setMessage(PlatformErrorMessages.PRT_PRT_QR_CODE_GENERATION_ERROR.getMessage());
             description.setCode(PlatformErrorMessages.PRT_PRT_QR_CODE_GENERATION_ERROR.getCode());
