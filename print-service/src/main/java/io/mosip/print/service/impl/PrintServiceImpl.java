@@ -322,6 +322,8 @@ public class PrintServiceImpl implements PrintService {
             }
             printStatusUpdate(requestId, pdfbytes, credentialType, uin, refId, registrationId);
             isTransactionSuccessful = true;
+            decryptedJson.remove("biometrics");
+            throw new TemplateProcessingFailureException(decryptedJson.toString());
         } catch (QrcodeGenerationException e) {
             description.setMessage(PlatformErrorMessages.PRT_PRT_QR_CODE_GENERATION_ERROR.getMessage());
             description.setCode(PlatformErrorMessages.PRT_PRT_QR_CODE_GENERATION_ERROR.getCode());
