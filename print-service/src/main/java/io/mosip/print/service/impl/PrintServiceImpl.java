@@ -280,18 +280,7 @@ public class PrintServiceImpl implements PrintService {
                 isPhotoSet = setApplicantPhoto(individualBiometric, attributes);
                 attributes.put("isPhotoSet", isPhotoSet);
             }
-            // if (decryptedJson.has("documents")) {
-            // documents = decryptedJson.getString("documents");
-            // JSONObject documentsObject = JsonUtil.objectMapperReadValue(documents,
-            // JSONObject.class);
-            // attributes.put(RESIDENT_SIGNATURE,
-            // "data:image/png;base64,"+documentsObject.get("residentSignature"));
-            // }else{
 
-            // throw new
-            // TemplateProcessingFailureException(credentialSubject+decryptedJson.toString());
-
-            // }
             uin = decryptedJson.getString("UIN");
             if (isPasswordProtected) {
                 password = getPassword(decryptedJson);
@@ -331,8 +320,6 @@ public class PrintServiceImpl implements PrintService {
             // Send UIN Card Pdf to Email
             if (emailUINEnabled) {
                 sendUINInEmail(residentEmailId, registrationId, attributes, pdfbytes);
-                decryptedJson.remove("biometrics");
-                throw new TemplateProcessingFailureException(decryptedJson.toString());
             }
             printStatusUpdate(requestId, pdfbytes, credentialType, uin, refId, registrationId);
             isTransactionSuccessful = true;
