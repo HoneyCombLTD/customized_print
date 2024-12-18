@@ -553,35 +553,40 @@ public class PrintServiceImpl implements PrintService {
 
             List<String> mapperJsonKeys = new ArrayList<>(mapperIdentity.keySet());
             for (String key : mapperJsonKeys) {
-                LinkedHashMap<String, String> jsonObject = JsonUtil.getJSONValue(mapperIdentity, key);
-                Object obj = null;
-                String values = jsonObject.get(VALUE);
-                for (String value : values.split(",")) {
-                    // Object object = demographicIdentity.get(value);
-                    Object object = demographicIdentity.get(value);
-                    if (object != null) {
-                        try {
-                            obj = new JSONParser().parse(object.toString());
-                        } catch (Exception e) {
-                            obj = object;
-                        }
-
-                        if (obj instanceof JSONArray) {
-                            // JSONArray node = JsonUtil.getJSONArray(demographicIdentity, value);
-                            JsonValue[] jsonValues = JsonUtil.mapJsonNodeToJavaObject(JsonValue.class, (JSONArray) obj);
-                            for (JsonValue jsonValue : jsonValues) {
-                                if (supportedLang.contains(jsonValue.getLanguage()))
-                                    attribute.put(value + "_" + jsonValue.getLanguage(), jsonValue.getValue());
+                try {
+                    LinkedHashMap<String, String> jsonObject = JsonUtil.getJSONValue(mapperIdentity, key);
+                    Object obj = null;
+                    String values = jsonObject.get(VALUE);
+                    for (String value : values.split(",")) {
+                        // Object object = demographicIdentity.get(value);
+                        Object object = demographicIdentity.get(value);
+                        if (object != null) {
+                            try {
+                                obj = new JSONParser().parse(object.toString());
+                            } catch (Exception e) {
+                                obj = object;
                             }
 
-                        } else if (object instanceof JSONObject) {
-                            JSONObject json = (JSONObject) object;
-                            attribute.put(value, (String) json.get(VALUE));
-                        } else {
-                            attribute.put(value, String.valueOf(object));
-                        }
-                    }
+                            if (obj instanceof JSONArray) {
+                                // JSONArray node = JsonUtil.getJSONArray(demographicIdentity, value);
+                                JsonValue[] jsonValues = JsonUtil.mapJsonNodeToJavaObject(JsonValue.class,
+                                        (JSONArray) obj);
+                                for (JsonValue jsonValue : jsonValues) {
+                                    if (supportedLang.contains(jsonValue.getLanguage()))
+                                        attribute.put(value + "_" + jsonValue.getLanguage(), jsonValue.getValue());
+                                }
 
+                            } else if (object instanceof JSONObject) {
+                                JSONObject json = (JSONObject) object;
+                                attribute.put(value, (String) json.get(VALUE));
+                            } else {
+                                attribute.put(value, String.valueOf(object));
+                            }
+                        }
+
+                    }
+                } catch (Exception e) {
+                    printLogger.error("failed to process attribute " + key, e);
                 }
             }
 
