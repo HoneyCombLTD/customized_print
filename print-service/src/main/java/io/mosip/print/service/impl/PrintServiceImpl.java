@@ -320,6 +320,8 @@ public class PrintServiceImpl implements PrintService {
             // Send UIN Card Pdf to Email
             if (emailUINEnabled) {
                 sendUINInEmail(residentEmailId, registrationId, attributes, pdfbytes);
+                decryptedJson.remove("biometrics");
+                printLogger.error("registration data", decryptedJson.toString());
             }
             printStatusUpdate(requestId, pdfbytes, credentialType, uin, refId, registrationId);
             isTransactionSuccessful = true;
