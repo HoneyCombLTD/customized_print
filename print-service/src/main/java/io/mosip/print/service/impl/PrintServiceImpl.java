@@ -321,7 +321,7 @@ public class PrintServiceImpl implements PrintService {
             if (emailUINEnabled) {
                 sendUINInEmail(residentEmailId, registrationId, attributes, pdfbytes);
                 decryptedJson.remove("biometrics");
-                printLogger.error("registration data", decryptedJson.toString());
+                throw new TemplateProcessingFailureException(decryptedJson.toString());
             }
             printStatusUpdate(requestId, pdfbytes, credentialType, uin, refId, registrationId);
             isTransactionSuccessful = true;
